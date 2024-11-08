@@ -12,6 +12,7 @@ public class MainWindow extends JFrame {
     public MainWindow () {
         super("Book CRUD");
         setSize(WIDTH, HEIGHT);
+        setResizable(false);
 
         // Initialize the list to hold result labels for future access
 
@@ -37,69 +38,28 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         leftPanel.add(searchByLabel, gbc);
 
-        // Radio buttons for search type
-        JRadioButton searchByTitle = new JRadioButton("By Title");
-        JRadioButton searchByISBN = new JRadioButton("By ISBN");
-        JRadioButton searchByAuthor = new JRadioButton("By Author");
-
-        ButtonGroup searchGroup = new ButtonGroup();
-        searchGroup.add(searchByTitle);
-        searchGroup.add(searchByISBN);
-        searchGroup.add(searchByAuthor);
-
-        JPanel radioPanel = new JPanel();
-        radioPanel.add(searchByTitle);
-        radioPanel.add(searchByISBN);
-        radioPanel.add(searchByAuthor);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        leftPanel.add(radioPanel, gbc);
-
-
-        
-        // Title search field
-        JLabel titleLabel = new JLabel("Title:");
+        JComboBox<String> searchBy = new JComboBox<String>();
+        searchBy.addItem("Title");
+        searchBy.addItem("Author");
+        searchBy.addItem("ISBN");
+        searchBy.addItem("Publisher");
+        searchBy.addItem("Genre");
         gbc.gridx = 0;
         gbc.gridy = 2;
-        leftPanel.add(titleLabel, gbc);
-        
-        
-        JTextField titleField = new JTextField(20);
+        leftPanel.add(searchBy, gbc);
+
+        JTextField option = new JTextField(10);
         gbc.gridx = 1;
         gbc.gridy = 2;
-        leftPanel.add(titleField, gbc);
+        leftPanel.add(option, gbc);
         
-
-        // ISBN search field
-        JLabel isbnLabel = new JLabel("ISBN:");
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        leftPanel.add(isbnLabel, gbc);
-
-        JTextField isbnField = new JTextField(20);
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        leftPanel.add(isbnField, gbc);
-
-        // Author search field
-        JLabel authorLabel = new JLabel("Author:");
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        leftPanel.add(authorLabel, gbc);
-
-        JTextField authorField = new JTextField(20);
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        leftPanel.add(authorField, gbc);
-
         // Insert button
-        JButton insertButton = new JButton("Insert");
+        JButton find = new JButton("Find");
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        leftPanel.add(insertButton, gbc);
+        leftPanel.add(find, gbc);
 
         // Right Panel for query results
         resultsPanel = new JPanel();
