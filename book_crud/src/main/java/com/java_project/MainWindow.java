@@ -3,11 +3,17 @@ package com.java_project;
 import javax.swing.*;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class MainWindow extends JFrame {
     final int WIDTH = 800;
     final int HEIGHT = 500;
     private JPanel resultsPanel;
+    private InsertWindow inWin;
+    private boolean inWinOpened = false;
 
     public MainWindow () {
         super("Book CRUD");
@@ -61,6 +67,31 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(find, gbc);
 
+        JComboBox<String> insertType = new JComboBox<String>();
+        insertType.addItem("New Book");
+        insertType.addItem("Book Copy");
+        insertType.addItem("Author Info");
+        insertType.addItem("Publisher Info");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        leftPanel.add(insertType, gbc);
+
+
+        JButton insert = new JButton("Log Record");
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.EAST;
+        leftPanel.add(insert, gbc);
+
+        insert.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createInsertWin((String) insertType.getSelectedItem());
+            }
+        });
+
+
         // Right Panel for query results
         resultsPanel = new JPanel();
         resultsPanel.setSize(WIDTH/2, HEIGHT - 200);
@@ -75,7 +106,8 @@ public class MainWindow extends JFrame {
         splitPane.setDividerLocation(WIDTH/2);
         splitPane.setResizeWeight(0.7);
         splitPane.setSize(WIDTH/2, HEIGHT - 200);
-
+        splitPane.setEnabled(false);
+        
         // Add the split pane to the main frame
         add(splitPane);
 
@@ -83,5 +115,22 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the window
         setVisible(true);
+    }
+
+    public void createInsertWin(String type) {
+        if (!this.inWinOpened) {
+            inWin = new InsertWindow(type);
+            inWin.setVisible(true);
+            inWin.setOpen(true);
+            this.inWinOpened = true;
+            inWin.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    inWinOpened = false; // Reset the flag when inWin is closing
+                }
+            });
+        } else {
+            inWin.toFront();
+        }
     }
 }
