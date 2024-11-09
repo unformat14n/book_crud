@@ -5,12 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.java_project.MainWindow;
 import com.dieselpoint.norm.Database;
-/**
- * Hello world!
- *
- */
+
 public class Main {
     private static final String ROOT_DIR = System.getProperty("user.home"); // Or root path as needed
     private static final String FOLDER_NAME = ".book_crud";
@@ -49,6 +45,6 @@ public class Main {
 
     public static void main(String[] args) {
         Database db = setupDatabase();
-        MainWindow win = new MainWindow();
+        MainWindow win = new MainWindow(db);
     }
 }

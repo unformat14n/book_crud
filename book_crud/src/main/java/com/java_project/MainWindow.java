@@ -8,15 +8,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import com.dieselpoint.norm.Database;
+
 public class MainWindow extends JFrame {
     final int WIDTH = 800;
     final int HEIGHT = 500;
     private JPanel resultsPanel;
     private InsertWindow inWin;
     private boolean inWinOpened = false;
+    public Database db;
 
-    public MainWindow () {
+    public MainWindow (Database db) {
         super("Book CRUD");
+        this.db = db;
         setSize(WIDTH, HEIGHT);
         setResizable(false);
 
@@ -119,7 +123,7 @@ public class MainWindow extends JFrame {
 
     public void createInsertWin(String type) {
         if (!this.inWinOpened) {
-            inWin = new InsertWindow(type);
+            inWin = new InsertWindow(type, this.db);
             inWin.setVisible(true);
             inWin.setOpen(true);
             this.inWinOpened = true;
