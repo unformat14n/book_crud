@@ -1,16 +1,15 @@
 package com.java_project;
 
-import javax.swing.*;
-
+import com.dieselpoint.norm.Database;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import com.dieselpoint.norm.Database;
+import javax.swing.*;
 
 public class MainWindow extends JFrame {
+
     final int WIDTH = 800;
     final int HEIGHT = 500;
     private JPanel resultsPanel;
@@ -87,11 +86,13 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.EAST;
         leftPanel.add(insert, gbc);
 
-        insert.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                createInsertWin((String) insertType.getSelectedItem());
+        insert.addActionListener(
+            new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    createInsertWin((String) insertType.getSelectedItem());
+                }
             }
-        });
+        );
 
         // Right Panel for query results
         resultsPanel = new JPanel();
@@ -103,7 +104,11 @@ public class MainWindow extends JFrame {
         scrollPane.setSize(new Dimension(WIDTH / 2, HEIGHT - 200));
 
         // Split Pane to separate left and right panels
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, scrollPane);
+        JSplitPane splitPane = new JSplitPane(
+            JSplitPane.HORIZONTAL_SPLIT,
+            leftPanel,
+            scrollPane
+        );
         splitPane.setDividerLocation(WIDTH / 2);
         splitPane.setResizeWeight(0.7);
         splitPane.setSize(WIDTH / 2, HEIGHT - 200);
@@ -124,12 +129,14 @@ public class MainWindow extends JFrame {
             inWin.setVisible(true);
             inWin.setOpen(true);
             this.inWinOpened = true;
-            inWin.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    inWinOpened = false; // Reset the flag when inWin is closing
+            inWin.addWindowListener(
+                new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        inWinOpened = false; // Reset the flag when inWin is closing
+                    }
                 }
-            });
+            );
         } else {
             inWin.toFront();
         }

@@ -1,18 +1,24 @@
 package com.java_project;
 
-import javax.swing.*;
-import java.awt.*;
+import com.dieselpoint.norm.Database;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Date;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-import com.dieselpoint.norm.Database;
 // import com.java_project.Author;
 
 public class InsertWindow extends JFrame {
+
     private String winType;
     private JPanel mainPanel;
     private GridBagConstraints gbc;
@@ -169,6 +175,16 @@ public class InsertWindow extends JFrame {
         gbc.gridy = 10;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(submit, gbc);
+
+        JButton closeBtn = new JButton("Close");
+        gbc.gridx = 1;
+        gbc.gridy = 10;
+        gbc.anchor = GridBagConstraints.EAST;
+        mainPanel.add(closeBtn, gbc);
+        closeBtn.addActionListener(e -> {
+            dispose();
+        });
+
         submit.addActionListener(e -> {
             String dateText = t8.getText();
             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -179,12 +195,32 @@ public class InsertWindow extends JFrame {
                 date = dateText;
                 System.out.println("Parsed date: " + date);
 
+                JTextField[] fields = { t1, t2, t3, t4 };
+                for (JTextField field : fields) {
+                    System.out.println(
+                        field.getText() + "-" + field.getText().equals("")
+                    );
+                    if (field.getText().equals("")) {
+                        throw new Exception("Empty fields");
+                    }
+                }
+
+                insertToDB();
             } catch (ParseException ex) {
                 JOptionPane.showMessageDialog(
-                        this,
-                        "Invalid date format. Please enter in MM/dd/yyyy format.",
-                        "Invalid Date Format",
-                        JOptionPane.ERROR_MESSAGE);
+                    this,
+                    "Invalid date format. Please enter in MM/dd/yyyy format.",
+                    "Invalid Date Format",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            } catch (Exception ex) {
+                System.out.println(ex);
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Please fill in all mandatory fields.",
+                    "Missing Fields",
+                    JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 
@@ -194,16 +230,22 @@ public class InsertWindow extends JFrame {
     public void insertToDB() {
         if (winType == "Book") {
             String genre = (String) t5.getSelectedItem();
-
-            // int author =
-            // BookInfo book = new BookInfo(
-            // t2.getText(),
-            // t1.getText(),
-            // matchingAuthors.get(0).authorId,
-            // t4.getText(),
-            // (String) t5.getSelectedItem(),
-            // date
-            // );
+            int edition = 0;
+            if (!t6.getText().equals("")) {
+                edition = Integer.parseInt(t6.getText());
+            }
+            BookInfo book = new BookInfo(
+                t2.getText(),
+                t1.getText(),
+                t3.getText(),
+                edition,
+                t7.getText(),
+                genre,
+                date,
+                t4.getText()
+            );
+            db.insert(book);
         }
+        dispose();
     }
 }

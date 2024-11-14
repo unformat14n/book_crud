@@ -14,12 +14,12 @@ public class BookInfo {
      */
     @Id
     @GeneratedValue
-    public Long bookId;
+    public long bookId;
 
     public String isbn;
     public String title;
     public String author;
-    public long bookEd;
+    public int bookEd;
     public String description;
     public String genre;
     public String publishDate;
