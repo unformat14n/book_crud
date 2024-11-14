@@ -1,18 +1,32 @@
 package com.java_project;
+
 import javax.swing.*;
 import java.awt.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Date;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import com.dieselpoint.norm.Database;
+// import com.java_project.Author;
 
 public class InsertWindow extends JFrame {
     private String winType;
     private JPanel mainPanel;
     private GridBagConstraints gbc;
-    private JTextField t1, t2, t3, t4, t5, t6, t7, t8;
+    private JTextField t1, t2, t3, t4, t6, t7, t8;
+    private JComboBox<String> t5;
+    private InsertWindow auxWin;
+    private boolean auxWinOpen;
+
+    private String date;
+    private long authorId;
+    private long pubId;
     public boolean isOpen = true;
+
+    private Database db;
 
     public InsertWindow(String type, Database db) {
         super("Logging...");
@@ -20,6 +34,7 @@ public class InsertWindow extends JFrame {
         setResizable(false);
         setSize(400, 500);
         winType = type;
+        this.db = db;
 
         initialize();
     }
@@ -33,7 +48,7 @@ public class InsertWindow extends JFrame {
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5); // Adds padding between components
         System.out.println(winType);
-        if(winType == "New Book") {
+        if (winType == "Book") {
             newBookWin();
         }
     }
@@ -93,13 +108,25 @@ public class InsertWindow extends JFrame {
         gbc.gridy = 5;
         mainPanel.add(genre, gbc);
 
-        t5 = new JTextField(20);
+        t5 = new JComboBox<String>();
+        t5.addItem("ACTION ADVENTURE");
+        t5.addItem("CHILDREN");
+        t5.addItem("DYSTOPIAN");
+        t5.addItem("FANTASY");
+        t5.addItem("GRAPHIC_NOVEL");
+        t5.addItem("HISTORICAL_FICTION");
+        t5.addItem("HORROR");
+        t5.addItem("MYSTERY");
+        t5.addItem("THRILLER_SUSPENSE");
+        t5.addItem("NON_FICTION");
+        t5.addItem("ROMANCE");
+        t5.addItem("SCIENCE_FICTION");
         gbc.gridx = 1;
         gbc.gridy = 5;
         mainPanel.add(t5, gbc);
 
         JLabel opt = new JLabel("Optional Fields:");
-        f = new Font("Arial", Font.BOLD, 16);
+        f = new Font("Arial", Font.BOLD, 18);
         opt.setFont(f);
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -115,7 +142,7 @@ public class InsertWindow extends JFrame {
         t6 = new JTextField(20);
         gbc.gridx = 1;
         gbc.gridy = 7;
-        mainPanel.add(t5, gbc);
+        mainPanel.add(t6, gbc);
 
         JLabel desc = new JLabel("Description");
         gbc.gridx = 0;
@@ -148,32 +175,35 @@ public class InsertWindow extends JFrame {
             dateFormat.setLenient(false);
 
             try {
-                Date date = dateFormat.parse(dateText);
+                dateFormat.parse(dateText);
+                date = dateText;
                 System.out.println("Parsed date: " + date);
+
             } catch (ParseException ex) {
                 JOptionPane.showMessageDialog(
-                    this, 
-                    "Invalid date format. Please enter in MM/dd/yyyy format.", 
-                    "Invalid Date Format", 
-                    JOptionPane.ERROR_MESSAGE
-                );
+                        this,
+                        "Invalid date format. Please enter in MM/dd/yyyy format.",
+                        "Invalid Date Format",
+                        JOptionPane.ERROR_MESSAGE);
             }
-        
         });
 
-        JButton close = new JButton("Close");
-        gbc.gridx = 1;
-        gbc.gridy = 10;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(close, gbc);
-        close.addActionListener(event -> {
-            this.dispose();
-        });
-
-
-
-
-        
         add(mainPanel);
+    }
+
+    public void insertToDB() {
+        if (winType == "Book") {
+            String genre = (String) t5.getSelectedItem();
+
+            // int author =
+            // BookInfo book = new BookInfo(
+            // t2.getText(),
+            // t1.getText(),
+            // matchingAuthors.get(0).authorId,
+            // t4.getText(),
+            // (String) t5.getSelectedItem(),
+            // date
+            // );
+        }
     }
 }

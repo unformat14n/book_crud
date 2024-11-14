@@ -18,7 +18,7 @@ public class MainWindow extends JFrame {
     private boolean inWinOpened = false;
     public Database db;
 
-    public MainWindow (Database db) {
+    public MainWindow(Database db) {
         super("Book CRUD");
         this.db = db;
         setSize(WIDTH, HEIGHT);
@@ -39,7 +39,7 @@ public class MainWindow extends JFrame {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(title, gbc);
-        
+
         // "Search by:" label
         JLabel searchByLabel = new JLabel("Search by:");
         gbc.gridx = 0;
@@ -62,7 +62,7 @@ public class MainWindow extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 2;
         leftPanel.add(option, gbc);
-        
+
         // Insert button
         JButton find = new JButton("Find");
         gbc.gridx = 0;
@@ -81,7 +81,6 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         leftPanel.add(insertType, gbc);
 
-
         JButton insert = new JButton("Log Record");
         gbc.gridx = 1;
         gbc.gridy = 4;
@@ -89,29 +88,27 @@ public class MainWindow extends JFrame {
         leftPanel.add(insert, gbc);
 
         insert.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 createInsertWin((String) insertType.getSelectedItem());
             }
         });
 
-
         // Right Panel for query results
         resultsPanel = new JPanel();
-        resultsPanel.setSize(WIDTH/2, HEIGHT - 200);
+        resultsPanel.setSize(WIDTH / 2, HEIGHT - 200);
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
-        
+
         // Making resultsPanel scrollable
         JScrollPane scrollPane = new JScrollPane(resultsPanel);
-        scrollPane.setSize(new Dimension(WIDTH/2, HEIGHT - 200));
+        scrollPane.setSize(new Dimension(WIDTH / 2, HEIGHT - 200));
 
         // Split Pane to separate left and right panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, scrollPane);
-        splitPane.setDividerLocation(WIDTH/2);
+        splitPane.setDividerLocation(WIDTH / 2);
         splitPane.setResizeWeight(0.7);
-        splitPane.setSize(WIDTH/2, HEIGHT - 200);
+        splitPane.setSize(WIDTH / 2, HEIGHT - 200);
         splitPane.setEnabled(false);
-        
+
         // Add the split pane to the main frame
         add(splitPane);
 
