@@ -1,7 +1,8 @@
+.gitignore
 ./target/*
 ./main/test/*
-./.classpath
-./.project
-./.settings/
-./.vscode/
+./book_crud/.classpath
+./book_crud/.project
+./book_crud/.settings/
+./book_crud/.vscode/
 
