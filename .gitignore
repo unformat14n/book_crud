@@ -1,6 +1,6 @@
 .gitignore
-/target/
-/main/test/
+/book_crud/target/
+/book_crud/main/test/
 /book_crud/.classpath
 /book_crud/.project
 /book_crud/.settings
