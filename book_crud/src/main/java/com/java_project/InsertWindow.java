@@ -99,7 +99,7 @@ public class InsertWindow extends JFrame {
         mainPanel.add(t5, gbc);
 
         JLabel opt = new JLabel("Optional Fields:");
-        f = new Font("Arial", Font.BOLD, 18);
+        f = new Font("Arial", Font.BOLD, 16);
         opt.setFont(f);
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -159,6 +159,7 @@ public class InsertWindow extends JFrame {
                 );
             }
         });
+
         
         add(mainPanel);
     }
