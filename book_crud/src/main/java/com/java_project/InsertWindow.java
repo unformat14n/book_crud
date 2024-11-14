@@ -158,7 +158,20 @@ public class InsertWindow extends JFrame {
                     JOptionPane.ERROR_MESSAGE
                 );
             }
+        
         });
+
+        JButton close = new JButton("Close");
+        gbc.gridx = 1;
+        gbc.gridy = 10;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(close, gbc);
+        close.addActionListener(event -> {
+            this.dispose();
+        });
+
+
+
 
         
         add(mainPanel);
