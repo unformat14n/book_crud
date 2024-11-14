@@ -72,10 +72,10 @@ public class MainWindow extends JFrame {
         leftPanel.add(find, gbc);
 
         JComboBox<String> insertType = new JComboBox<String>();
-        insertType.addItem("New Book");
-        insertType.addItem("Book Copy");
-        insertType.addItem("Author Info");
-        insertType.addItem("Publisher Info");
+        insertType.addItem("Book");
+        insertType.addItem("Copy");
+        insertType.addItem("Author");
+        insertType.addItem("Publisher");
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;

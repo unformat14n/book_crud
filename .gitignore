@@ -1,0 +1,7 @@
+./target/*
+./main/test/*
+./.classpath
+./.project
+./.settings/
+./.vscode/
+

@@ -1,16 +1,40 @@
 package com.java_project;
 
+import com.dieselpoint.norm.Database;
+import java.awt.print.Book;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.dieselpoint.norm.Database;
-
 public class Main {
+
     private static final String ROOT_DIR = System.getProperty("user.home"); // Or root path as needed
     private static final String FOLDER_NAME = ".book_crud";
     private static final String DB_FILE_NAME = "bcrud.db";
+
+    public static void createTable(
+        Database db,
+        String tableName,
+        Class<?> clazz
+    ) {
+        try {
+            db.createTable(clazz);
+            System.out.println(
+                "Table *" + tableName + "* created successfully."
+            );
+        } catch (Exception e) {
+            if (e.getMessage().contains("already exists")) {
+                System.out.println(
+                    "Table *" +
+                    tableName +
+                    "* already exists, skipping creation."
+                );
+            } else {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static Database setupDatabase() {
         try {
@@ -35,8 +59,12 @@ public class Main {
             Database db = new Database();
             db.setJdbcUrl("jdbc:sqlite:" + dbFilePath.toString());
             System.out.println(" >>> Database set up correctly!");
-            return db;
+            Class<?>[] tables = { BookInfo.class };
+            for (int i = 0; i < tables.length; i++) {
+                createTable(db, tables[i].getSimpleName(), tables[i]);
+            }
 
+            return db;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error setting up database", e);
