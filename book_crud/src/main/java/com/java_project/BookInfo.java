@@ -2,6 +2,7 @@ package com.java_project;
 
 import java.util.Date;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -13,8 +14,8 @@ public class BookInfo {
      * to the diagram we have.
      */
     @Id
-    @GeneratedValue
-    public long bookId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Integer bookId;
 
     public String isbn;
     public String title;
@@ -26,19 +27,19 @@ public class BookInfo {
     public String publisher;
 
     // Always add a non-parameter constructor
-    public BookInfo() {}
+    public BookInfo() {
+    }
 
     // Add custom constructors
     public BookInfo(
-        String isbn,
-        String title,
-        String author,
-        int bookEd,
-        String description,
-        String genre,
-        String publishDate,
-        String publisher
-    ) {
+            String isbn,
+            String title,
+            String author,
+            int bookEd,
+            String description,
+            String genre,
+            String publishDate,
+            String publisher) {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
@@ -50,20 +51,18 @@ public class BookInfo {
 
     // Full implement
     public String toString() {
-        return (
-            this.isbn +
-            ", " +
-            this.title +
-            ", " +
-            this.author +
-            ", " +
-            this.bookEd +
-            ", " +
-            this.description +
-            ", " +
-            this.genre +
-            ", " +
-            this.publishDate
-        );
+        return (this.isbn +
+                ", " +
+                this.title +
+                ", " +
+                this.author +
+                ", " +
+                this.bookEd +
+                ", " +
+                this.description +
+                ", " +
+                this.genre +
+                ", " +
+                this.publishDate);
     }
 }

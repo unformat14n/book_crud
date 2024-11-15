@@ -6,6 +6,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class Main {
 
@@ -14,22 +15,19 @@ public class Main {
     private static final String DB_FILE_NAME = "bcrud.db";
 
     public static void createTable(
-        Database db,
-        String tableName,
-        Class<?> clazz
-    ) {
+            Database db,
+            String tableName,
+            Class<?> clazz) {
         try {
             db.createTable(clazz);
             System.out.println(
-                "Table *" + tableName + "* created successfully."
-            );
+                    "Table *" + tableName + "* created successfully.");
         } catch (Exception e) {
             if (e.getMessage().contains("already exists")) {
                 System.out.println(
-                    "Table *" +
-                    tableName +
-                    "* already exists, skipping creation."
-                );
+                        "Table *" +
+                                tableName +
+                                "* already exists, skipping creation.");
             } else {
                 e.printStackTrace();
             }
@@ -73,6 +71,19 @@ public class Main {
 
     public static void main(String[] args) {
         Database db = setupDatabase();
+        BookInfo book = new BookInfo(
+                "978-3-16-148410-0",
+                "The Great Adventure",
+                "John Doe",
+                1,
+                "A thrilling adventure",
+                "Adventure",
+                "2024-01-01",
+                "Adventure Press");
+        db.insert(book);
+        List<BookInfo> b = db.where("title=?", "The Great Adventure").results(BookInfo.class);
+        System.out.println(b.get(0).bookId);
+
         MainWindow win = new MainWindow(db);
     }
 }

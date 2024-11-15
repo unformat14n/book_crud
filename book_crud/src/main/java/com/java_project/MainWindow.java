@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.*;
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class MainWindow extends JFrame {
@@ -20,7 +21,7 @@ public class MainWindow extends JFrame {
     public JTextField option;
 
     public MainWindow(Database db) {
-        
+
         super("Book CRUD");
         this.db = db;
         setSize(WIDTH, HEIGHT);
@@ -73,11 +74,11 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(find, gbc);
         find.addActionListener(
-            new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    findInDB((String) searchBy.getSelectedItem());
-                }
-            });
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        findInDB((String) searchBy.getSelectedItem());
+                    }
+                });
 
         JComboBox<String> insertType = new JComboBox<String>();
         insertType.addItem("Book");
@@ -96,12 +97,11 @@ public class MainWindow extends JFrame {
         leftPanel.add(insert, gbc);
 
         insert.addActionListener(
-            new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    createInsertWin((String) insertType.getSelectedItem());
-                }
-            }
-        );
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        createInsertWin((String) insertType.getSelectedItem());
+                    }
+                });
 
         // Right Panel for query results
         resultsPanel = new JPanel();
@@ -114,10 +114,9 @@ public class MainWindow extends JFrame {
 
         // Split Pane to separate left and right panels
         JSplitPane splitPane = new JSplitPane(
-            JSplitPane.HORIZONTAL_SPLIT,
-            leftPanel,
-            scrollPane
-        );
+                JSplitPane.HORIZONTAL_SPLIT,
+                leftPanel,
+                scrollPane);
 
         splitPane.setDividerLocation(WIDTH / 2);
         splitPane.setResizeWeight(0.7);
@@ -140,13 +139,12 @@ public class MainWindow extends JFrame {
             inWin.setOpen(true);
             this.inWinOpened = true;
             inWin.addWindowListener(
-                new WindowAdapter() {
-                    @Override
-                    public void windowClosing(WindowEvent e) {
-                        inWinOpened = false; // Reset the flag when inWin is closing
-                    }
-                }
-            );
+                    new WindowAdapter() {
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                            inWinOpened = false; // Reset the flag when inWin is closing
+                        }
+                    });
         } else {
             inWin.toFront();
         }
@@ -154,23 +152,39 @@ public class MainWindow extends JFrame {
 
     public void findInDB(String type) {
 
-        System.out.println("aa");
-            // resultsPanel.add(insertPanel);
+        System.out.println(type + ", " + option.getText());
+        // resultsPanel.add(insertPanel);
         resultsPanel.removeAll();
 
-        List<BookInfo> books = db.where(type + " =?", option.getText().toLowerCase()).results(BookInfo.class);
-        
-        for (BookInfo b: books){
-            JLabel newBook = new JLabel(b.toString());
-            System.out.println(b.toString());
+        List<BookInfo> books = db.where(type + " LIKE ?", "%" + option.getText().toLowerCase() + "%")
+                .results(BookInfo.class);
 
-            resultsPanel.add(newBook);
-        }
-        //     searchBy.addItem("Title");
-        // searchBy.addItem("Author");
-        // searchBy.addItem("ISBN");
-        // searchBy.addItem("Publisher");
-        // searchBy.addItem("Genre");
-        }
-    }//type
+        if (books.isEmpty()) {
+            // JLabel que diga not found o algo asi
+        } else {
+            for (BookInfo b : books) {
+                JPanel bookInfo = new JPanel();
+                Field[] fields = b.getClass().getDeclaredFields();
+                for (Field fld : fields) {
+                    fld.setAccessible(true);
+                    try {
+                        // Get the value of the field
+                        Object value = fld.get(b);
+                        String name = fld.getName();
+                        // value.toSrting() should get the value of the field
+                        // Check if the value is not null or empty
+                        if (value != null && !value.toString().isEmpty()) {
+                            // Create a JLabel to display the field name and value
+                        }
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
 
+                }
+                resultsPanel.add(bookInfo);
+            }
+            resultsPanel.revalidate();
+            resultsPanel.repaint();
+        }
+    }
+}
