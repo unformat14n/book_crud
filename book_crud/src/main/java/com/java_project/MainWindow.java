@@ -164,6 +164,8 @@ public class MainWindow extends JFrame {
         } else {
             for (BookInfo b : books) {
                 JPanel bookInfo = new JPanel();
+                bookInfo.setLayout(new FlowLayout());
+                bookInfo.setPreferredSize(new Dimension(resultsPanel.getWidth(), bookInfo.getPreferredSize().height));
                 Field[] fields = b.getClass().getDeclaredFields();
                 for (Field fld : fields) {
                     fld.setAccessible(true);
@@ -174,13 +176,20 @@ public class MainWindow extends JFrame {
                         // value.toSrting() should get the value of the field
                         // Check if the value is not null or empty
                         if (value != null && !value.toString().isEmpty()) {
+                            JLabel f = new JLabel(name + ": " + value.toString());
+                            bookInfo.add(f);
                             // Create a JLabel to display the field name and value
                         }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
-
                 }
+                // JButton edit = new JButton("Edit");
+                // bookInfo.add(edit);
+                // edit.addActionListener(e -> {
+                //     editBook(b);
+                }
+
                 resultsPanel.add(bookInfo);
             }
             resultsPanel.revalidate();
