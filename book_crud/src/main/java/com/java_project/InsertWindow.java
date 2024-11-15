@@ -235,14 +235,14 @@ public class InsertWindow extends JFrame {
                 edition = Integer.parseInt(t6.getText());
             }
             BookInfo book = new BookInfo(
-                t2.getText(),
-                t1.getText(),
-                t3.getText(),
+                t2.getText().toLowerCase(),
+                t1.getText().toLowerCase(),
+                t3.getText().toLowerCase(),
                 edition,
-                t7.getText(),
+                t7.getText().toLowerCase(),
                 genre,
                 date,
-                t4.getText()
+                t4.getText().toLowerCase()
             );
             db.insert(book);
         }

@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.*;
+import java.util.List;
 
 public class MainWindow extends JFrame {
 
@@ -16,8 +17,10 @@ public class MainWindow extends JFrame {
     private InsertWindow inWin;
     private boolean inWinOpened = false;
     public Database db;
+    public JTextField option;
 
     public MainWindow(Database db) {
+        
         super("Book CRUD");
         this.db = db;
         setSize(WIDTH, HEIGHT);
@@ -57,7 +60,7 @@ public class MainWindow extends JFrame {
         gbc.gridy = 2;
         leftPanel.add(searchBy, gbc);
 
-        JTextField option = new JTextField(10);
+        option = new JTextField(10);
         gbc.gridx = 1;
         gbc.gridy = 2;
         leftPanel.add(option, gbc);
@@ -69,6 +72,12 @@ public class MainWindow extends JFrame {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(find, gbc);
+        find.addActionListener(
+            new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    findInDB((String) searchBy.getSelectedItem());
+                }
+            });
 
         JComboBox<String> insertType = new JComboBox<String>();
         insertType.addItem("Book");
@@ -109,6 +118,7 @@ public class MainWindow extends JFrame {
             leftPanel,
             scrollPane
         );
+
         splitPane.setDividerLocation(WIDTH / 2);
         splitPane.setResizeWeight(0.7);
         splitPane.setSize(WIDTH / 2, HEIGHT - 200);
@@ -141,4 +151,26 @@ public class MainWindow extends JFrame {
             inWin.toFront();
         }
     }
-}
+
+    public void findInDB(String type) {
+
+        System.out.println("aa");
+            // resultsPanel.add(insertPanel);
+        resultsPanel.removeAll();
+
+        List<BookInfo> books = db.where(type + " =?", option.getText().toLowerCase()).results(BookInfo.class);
+        
+        for (BookInfo b: books){
+            JLabel newBook = new JLabel(b.toString());
+            System.out.println(b.toString());
+
+            resultsPanel.add(newBook);
+        }
+        //     searchBy.addItem("Title");
+        // searchBy.addItem("Author");
+        // searchBy.addItem("ISBN");
+        // searchBy.addItem("Publisher");
+        // searchBy.addItem("Genre");
+        }
+    }//type
+
