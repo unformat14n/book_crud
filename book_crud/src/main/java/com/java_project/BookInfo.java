@@ -1,6 +1,5 @@
 package com.java_project;
 
-import java.util.Date;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;

@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.ArrayList;
 
 public class MainWindow extends JFrame {
 
@@ -61,7 +62,7 @@ public class MainWindow extends JFrame {
         gbc.gridy = 2;
         leftPanel.add(searchBy, gbc);
 
-        option = new JTextField(10);
+        option = new JTextField(15);
         gbc.gridx = 1;
         gbc.gridy = 2;
         leftPanel.add(option, gbc);
@@ -105,14 +106,11 @@ public class MainWindow extends JFrame {
 
         // Right Panel for query results
         resultsPanel = new JPanel();
-        resultsPanel.setSize(WIDTH / 2, HEIGHT - 200);
-        resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
+        resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS)); // Vertical stacking
 
         // Making resultsPanel scrollable
         JScrollPane scrollPane = new JScrollPane(resultsPanel);
-        scrollPane.setSize(new Dimension(WIDTH / 2, HEIGHT - 200));
 
-        // Split Pane to separate left and right panels
         JSplitPane splitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 leftPanel,
@@ -120,7 +118,6 @@ public class MainWindow extends JFrame {
 
         splitPane.setDividerLocation(WIDTH / 2);
         splitPane.setResizeWeight(0.7);
-        splitPane.setSize(WIDTH / 2, HEIGHT - 200);
         splitPane.setEnabled(false);
 
         // Add the split pane to the main frame
@@ -133,7 +130,7 @@ public class MainWindow extends JFrame {
     }
 
     public void createInsertWin(String type) {
-        if (!this.inWinOpened) {
+        if (!inWinOpened) {
             inWin = new InsertWindow(type, this.db);
             inWin.setVisible(true);
             inWin.setOpen(true);
@@ -151,27 +148,46 @@ public class MainWindow extends JFrame {
     }
 
     public void findInDB(String type) {
-
-        System.out.println(type + ", " + option.getText());
-        // resultsPanel.add(insertPanel);
         resultsPanel.removeAll();
+        resultsPanel.revalidate();
+        resultsPanel.repaint();
 
         List<BookInfo> books = db.where(type + " LIKE ?", "%" + option.getText().toLowerCase() + "%")
                 .results(BookInfo.class);
+        System.out.println(type + " " + books.isEmpty());
+
+        List<String> isbns = new ArrayList<String>();
+        for (BookInfo b : books) {
+            if (!isbns.contains(b.isbn)) {
+                isbns.add(b.isbn);
+            }
+        }
+
+        List<BookCopy> copies = new ArrayList<BookCopy>();
+        for (String isbn : isbns) {
+            List<BookCopy> matches = db.where("bookISBN = ?", isbn).results(BookCopy.class);
+            for (BookCopy c : matches) {
+                copies.add(c);
+            }
+        }
 
         if (books.isEmpty()) {
-            // JLabel que diga not found o algo asi
+            JLabel noResults = new JLabel(
+                    "No copies were found with *" + type + "* like [" +
+                            option.getText().toLowerCase() + "]");
+            resultsPanel.add(noResults);
         } else {
-            for (BookInfo b : books) {
+            for (BookCopy c : copies) {
                 JPanel bookInfo = new JPanel();
-                bookInfo.setLayout(new FlowLayout());
-                bookInfo.setPreferredSize(new Dimension(resultsPanel.getWidth(), bookInfo.getPreferredSize().height));
-                Field[] fields = b.getClass().getDeclaredFields();
+                bookInfo.setLayout(new FlowLayout(FlowLayout.LEFT));
+                bookInfo.setPreferredSize(new Dimension(resultsPanel.getWidth() - 50,
+                        120));
+                Field[] fields = c.getClass().getDeclaredFields();
                 for (Field fld : fields) {
                     fld.setAccessible(true);
                     try {
                         // Get the value of the field
-                        Object value = fld.get(b);
+                        Object value = fld.get(c);
                         String name = fld.getName();
                         // value.toSrting() should get the value of the field
                         // Check if the value is not null or empty
@@ -187,9 +203,8 @@ public class MainWindow extends JFrame {
                 // JButton edit = new JButton("Edit");
                 // bookInfo.add(edit);
                 // edit.addActionListener(e -> {
-                //     editBook(b);
-                }
-
+                // editBook(b);
+                // }
                 resultsPanel.add(bookInfo);
             }
             resultsPanel.revalidate();

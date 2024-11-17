@@ -1,12 +1,10 @@
 package com.java_project;
 
 import com.dieselpoint.norm.Database;
-import java.awt.print.Book;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 public class Main {
 
@@ -57,7 +55,7 @@ public class Main {
             Database db = new Database();
             db.setJdbcUrl("jdbc:sqlite:" + dbFilePath.toString());
             System.out.println(" >>> Database set up correctly!");
-            Class<?>[] tables = { BookInfo.class };
+            Class<?>[] tables = { BookInfo.class, BookCopy.class };
             for (int i = 0; i < tables.length; i++) {
                 createTable(db, tables[i].getSimpleName(), tables[i]);
             }
@@ -71,19 +69,6 @@ public class Main {
 
     public static void main(String[] args) {
         Database db = setupDatabase();
-        BookInfo book = new BookInfo(
-                "978-3-16-148410-0",
-                "The Great Adventure",
-                "John Doe",
-                1,
-                "A thrilling adventure",
-                "Adventure",
-                "2024-01-01",
-                "Adventure Press");
-        db.insert(book);
-        List<BookInfo> b = db.where("title=?", "The Great Adventure").results(BookInfo.class);
-        System.out.println(b.get(0).bookId);
-
         MainWindow win = new MainWindow(db);
     }
 }
