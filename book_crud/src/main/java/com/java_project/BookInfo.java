@@ -43,6 +43,7 @@ public class BookInfo {
         this.title = title;
         this.author = author;
         this.bookEd = bookEd;
+        this.publisher = publisher;
         this.description = description;
         this.genre = genre;
         this.publishDate = publishDate;
@@ -50,7 +51,7 @@ public class BookInfo {
 
     // Full implement
     public String toString() {
-        return (this.isbn +
+        return this.isbn +
                 ", " +
                 this.title +
                 ", " +
@@ -62,6 +63,6 @@ public class BookInfo {
                 ", " +
                 this.genre +
                 ", " +
-                this.publishDate);
+                this.publishDate;
     }
 }

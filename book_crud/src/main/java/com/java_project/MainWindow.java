@@ -9,6 +9,8 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 
 public class MainWindow extends JFrame {
@@ -20,6 +22,7 @@ public class MainWindow extends JFrame {
     private boolean inWinOpened = false;
     public Database db;
     public JTextField option;
+    public JPanel checksPanel;
 
     public MainWindow(Database db) {
 
@@ -84,8 +87,6 @@ public class MainWindow extends JFrame {
         JComboBox<String> insertType = new JComboBox<String>();
         insertType.addItem("Book");
         insertType.addItem("Copy");
-        insertType.addItem("Author");
-        insertType.addItem("Publisher");
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
@@ -103,6 +104,21 @@ public class MainWindow extends JFrame {
                         createInsertWin((String) insertType.getSelectedItem());
                     }
                 });
+
+        // JLabel checks = new JLabel("Active Check Outs:");
+        // checks.setFont(new Font("Arial", Font.BOLD, 18));
+        // gbc.gridx = 0;
+        // gbc.gridy = 5;
+        // gbc.anchor = GridBagConstraints.WEST;
+        // leftPanel.add(checks, gbc);
+
+        // checksPanel = new JPanel();
+        // checksPanel.setPreferredSize(new Dimension());
+        // checksPanel.setLayout(new BoxLayout(checksPanel, BoxLayout.Y_AXIS));
+        // JScrollPane checksScroll = new JScrollPane(checksPanel);
+        // gbc.gridx = 0;
+        // gbc.gridy = 6;
+        // leftPanel.add(checksScroll, gbc);
 
         // Right Panel for query results
         resultsPanel = new JPanel();
@@ -138,8 +154,11 @@ public class MainWindow extends JFrame {
             inWin.addWindowListener(
                     new WindowAdapter() {
                         @Override
-                        public void windowClosing(WindowEvent e) {
-                            inWinOpened = false; // Reset the flag when inWin is closing
+                        public void windowDeactivated(WindowEvent e) {
+                            if (!inWin.isShowing()) {
+                                inWinOpened = false;
+                                findInDB("Title");
+                            }
                         }
                     });
         } else {
@@ -152,24 +171,9 @@ public class MainWindow extends JFrame {
         resultsPanel.revalidate();
         resultsPanel.repaint();
 
-        List<BookInfo> books = db.where(type + " LIKE ?", "%" + option.getText().toLowerCase() + "%")
+        // Fetch BookInfo objects based on the search criteria
+        List<BookInfo> books = db.where(type + " LIKE ?", "%" + option.getText().toUpperCase() + "%")
                 .results(BookInfo.class);
-        System.out.println(type + " " + books.isEmpty());
-
-        List<String> isbns = new ArrayList<String>();
-        for (BookInfo b : books) {
-            if (!isbns.contains(b.isbn)) {
-                isbns.add(b.isbn);
-            }
-        }
-
-        List<BookCopy> copies = new ArrayList<BookCopy>();
-        for (String isbn : isbns) {
-            List<BookCopy> matches = db.where("bookISBN = ?", isbn).results(BookCopy.class);
-            for (BookCopy c : matches) {
-                copies.add(c);
-            }
-        }
 
         if (books.isEmpty()) {
             JLabel noResults = new JLabel(
@@ -177,35 +181,72 @@ public class MainWindow extends JFrame {
                             option.getText().toLowerCase() + "]");
             resultsPanel.add(noResults);
         } else {
-            for (BookCopy c : copies) {
-                JPanel bookInfo = new JPanel();
-                bookInfo.setLayout(new FlowLayout(FlowLayout.LEFT));
-                bookInfo.setPreferredSize(new Dimension(resultsPanel.getWidth() - 50,
-                        120));
-                Field[] fields = c.getClass().getDeclaredFields();
+            // Map ISBNs to their respective BookInfo objects
+            Map<String, BookInfo> bookMap = new HashMap<>();
+            for (BookInfo book : books) {
+                bookMap.put(book.isbn, book);
+            }
+
+            // Fetch BookCopy objects and link them to BookInfo
+            List<BookCopy> copies = new ArrayList<>();
+            for (String isbn : bookMap.keySet()) {
+                List<BookCopy> matches = db.where("bookISBN = ?", isbn).results(BookCopy.class);
+                for (BookCopy copy : matches) {
+                    copy.book = bookMap.get(isbn); // Link the BookInfo object
+                    copies.add(copy);
+                }
+            }
+
+            // Display BookCopy details with linked BookInfo
+            for (BookCopy copy : copies) {
+                JPanel bookInfoPanel = new JPanel();
+                bookInfoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+                bookInfoPanel.setPreferredSize(new Dimension(resultsPanel.getWidth() - 50, 120));
+
+                Field[] fields = copy.getClass().getDeclaredFields();
                 for (Field fld : fields) {
                     fld.setAccessible(true);
                     try {
-                        // Get the value of the field
-                        Object value = fld.get(c);
-                        String name = fld.getName();
-                        // value.toSrting() should get the value of the field
-                        // Check if the value is not null or empty
-                        if (value != null && !value.toString().isEmpty()) {
-                            JLabel f = new JLabel(name + ": " + value.toString());
-                            bookInfo.add(f);
-                            // Create a JLabel to display the field name and value
+                        Object value = fld.get(copy);
+                        if (value != null && !value.toString().isEmpty() &&
+                                !fld.getName().equals("book")) {
+                            JLabel fieldLabel = new JLabel(fld.getName() + ": " + value.toString());
+                            bookInfoPanel.add(fieldLabel);
                         }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
                 }
-                // JButton edit = new JButton("Edit");
-                // bookInfo.add(edit);
-                // edit.addActionListener(e -> {
-                // editBook(b);
-                // }
-                resultsPanel.add(bookInfo);
+
+                // Add details from BookInfo
+                if (copy.book != null) {
+                    JLabel bookTitle = new JLabel("Title: " + copy.book.title);
+                    JLabel bookAuthor = new JLabel(
+                            "Author: " + copy.book.author);
+                    JLabel isbn = new JLabel(
+                            "ISBN: " + copy.book.isbn);
+                    JLabel genre = new JLabel(
+                            "Genre: " + copy.book.genre);
+                    JLabel publisher = new JLabel(
+                            "Publisher: " + copy.book.publisher);
+                    bookInfoPanel.add(bookTitle);
+                    bookInfoPanel.add(bookAuthor);
+                    bookInfoPanel.add(isbn);
+                    bookInfoPanel.add(publisher);
+                    bookInfoPanel.add(genre);
+                }
+
+                JButton del = new JButton("DELETE");
+                bookInfoPanel.add(del);
+                System.out.println(copy.copyId + " " + copy.book.isbn);
+                del.addActionListener(e -> {
+                    db.sql(
+                            "DELETE FROM BookCopy WHERE copyId = ? AND bookISBN = ?;",
+                            copy.copyId, copy.book.isbn).execute();
+                    findInDB(type);
+                });
+
+                resultsPanel.add(bookInfoPanel);
             }
             resultsPanel.revalidate();
             resultsPanel.repaint();

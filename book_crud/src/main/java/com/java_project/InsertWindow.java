@@ -29,6 +29,7 @@ public class InsertWindow extends JFrame {
     private InsertWindow auxWin;
     private boolean auxWinOpen;
     private String bookRef;
+    private BookInfo book;
 
     private String date;
     public boolean isOpen = true;
@@ -37,7 +38,6 @@ public class InsertWindow extends JFrame {
 
     public InsertWindow(String type, Database db) {
         super("Logging...");
-        setSize(WIDTH, HEIGHT);
         setResizable(false);
         setSize(400, 500);
         winType = type;
@@ -304,7 +304,8 @@ public class InsertWindow extends JFrame {
                 if (matches.isEmpty()) {
                     throw new Exception("Match not found");
                 } else {
-                    bookRef = matches.get(0).isbn;
+                    book = matches.get(0);
+                    bookRef = book.isbn;
                 }
 
                 insertToDB();
@@ -344,24 +345,23 @@ public class InsertWindow extends JFrame {
                 edition = Integer.parseInt(t6.getText());
             }
             BookInfo book = new BookInfo(
-                    t2.getText().toLowerCase(),
-                    t1.getText().toLowerCase(),
-                    t3.getText().toLowerCase(),
+                    t2.getText().toUpperCase(),
+                    t1.getText().toUpperCase(),
+                    t3.getText().toUpperCase(),
                     edition,
-                    t7.getText().toLowerCase(),
+                    t7.getText().toUpperCase(),
                     genre,
                     date,
-                    t4.getText().toLowerCase());
+                    t4.getText().toUpperCase());
             db.insert(book);
         } else if (winType == "Copy") {
             String acqType = (String) t5.getSelectedItem();
             BookCopy copy = new BookCopy(
-                    t2.getText(),
+                    t2.getText().toUpperCase(),
                     acqType,
                     bookRef);
             db.insert(copy);
         }
         dispose();
-        System.exit(0);
     }
 }

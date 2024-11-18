@@ -1,41 +1,56 @@
 package com.java_project;
 
-import javax.persistence.*;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.UUID;
 
+// Norm-based entity class
 @Table(name = "BookCopy")
 public class BookCopy {
+
+    /*
+     * This will be a table with properties similar
+     * to the diagram we have.
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer id;
+    public String copyId; // Primary key
 
     public String acquisitionDate;
     public String status;
     public String acquisitionType;
+    public String bookISBN; // Foreign key
 
-    @ManyToOne
-    @JoinColumn(name = "book_isbn", referencedColumnName = "bookId")
-    public String bookISBN;
+    @Transient
+    public BookInfo book; // Non-persistent field for linking BookInfo
 
+    // Default constructor
     public BookCopy() {
     }
 
-    public BookCopy(
-            String acquisitionDate,
-            String acquisitionType,
-            String isbn) {
+    // Constructor for creating new instances
+    public BookCopy(String acquisitionDate, String acquisitionType, String isbn) {
+        this.copyId = generateUUID();
         this.bookISBN = isbn;
         this.acquisitionDate = acquisitionDate;
         this.acquisitionType = acquisitionType;
         this.status = "AVAILABLE";
     }
 
+    @Override
     public String toString() {
         return "BookCopy{" +
-                "copyId=" + id +
-                ", bookISBN=" + bookISBN +
-                ", acquisitionDate=" + acquisitionDate +
+                "id=" + copyId +
+                ", bookISBN='" + bookISBN + '\'' +
+                ", acquisitionDate='" + acquisitionDate + '\'' +
                 ", status='" + status + '\'' +
-                ", acquisitionType='" + acquisitionType +
+                ", acquisitionType='" + acquisitionType + '\'' +
                 '}';
+    }
+
+    public String generateUUID() {
+        return UUID.randomUUID().toString();
     }
 }
