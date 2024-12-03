@@ -104,6 +104,21 @@ public class MainWindow extends JFrame {
                         createInsertWin((String) insertType.getSelectedItem());
                     }
                 });
+        
+        JButton check_In = new JButton("Check In");
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        leftPanel.add(check_In, gbc);
+
+        JButton check_Out = new JButton("Check Out");
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        leftPanel.add(check_Out, gbc);
+
 
         // JLabel checks = new JLabel("Active Check Outs:");
         // checks.setFont(new Font("Arial", Font.BOLD, 18));
