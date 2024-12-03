@@ -104,7 +104,7 @@ public class MainWindow extends JFrame {
                         createInsertWin((String) insertType.getSelectedItem());
                     }
                 });
-        
+
         JButton check_In = new JButton("Check In");
         gbc.gridx = 0;
         gbc.gridy = 5;
@@ -118,7 +118,6 @@ public class MainWindow extends JFrame {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.EAST;
         leftPanel.add(check_Out, gbc);
-
 
         // JLabel checks = new JLabel("Active Check Outs:");
         // checks.setFont(new Font("Arial", Font.BOLD, 18));
@@ -212,28 +211,12 @@ public class MainWindow extends JFrame {
                 }
             }
 
-            // Display BookCopy details with linked BookInfo
-            for (BookCopy copy : copies) {
+            String fieldTitles[] = { "ID: ", "Acquisition Date: ", "Status: ", "Acquisition Type: ", "Book ISBN: " };
+            for (int i = 0; i < copies.size(); i++) {
+                BookCopy copy = copies.get(i);
                 JPanel bookInfoPanel = new JPanel();
-                bookInfoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-                bookInfoPanel.setPreferredSize(new Dimension(resultsPanel.getWidth() - 50, 120));
+                bookInfoPanel.setLayout(new BoxLayout(bookInfoPanel, BoxLayout.Y_AXIS));
 
-                Field[] fields = copy.getClass().getDeclaredFields();
-                for (Field fld : fields) {
-                    fld.setAccessible(true);
-                    try {
-                        Object value = fld.get(copy);
-                        if (value != null && !value.toString().isEmpty() &&
-                                !fld.getName().equals("book")) {
-                            JLabel fieldLabel = new JLabel(fld.getName() + ": " + value.toString());
-                            bookInfoPanel.add(fieldLabel);
-                        }
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                // Add details from BookInfo
                 if (copy.book != null) {
                     JLabel bookTitle = new JLabel("Title: " + copy.book.title);
                     JLabel bookAuthor = new JLabel(
@@ -251,9 +234,30 @@ public class MainWindow extends JFrame {
                     bookInfoPanel.add(genre);
                 }
 
+                Field[] fields = copy.getClass().getDeclaredFields();
+                int idx = 0;
+                for (Field fld : fields) {
+                    fld.setAccessible(true);
+                    try {
+                        Object value = fld.get(copy);
+                        if (value != null && !value.toString().isEmpty() &&
+                                !fld.getName().equals("book")) {
+                            JLabel fieldLabel = new JLabel(fieldTitles[idx] + value.toString());
+                            bookInfoPanel.add(fieldLabel);
+                        }
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                    idx++;
+                }
+                idx = 0;
+
+                // Add details from BookInfo
+
+                // JPanel wrapperPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                 JButton del = new JButton("DELETE");
+                // wrapperPanel.add(del);
                 bookInfoPanel.add(del);
-                System.out.println(copy.copyId + " " + copy.book.isbn);
                 del.addActionListener(e -> {
                     db.sql(
                             "DELETE FROM BookCopy WHERE copyId = ? AND bookISBN = ?;",
