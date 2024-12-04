@@ -115,6 +115,14 @@ public class MainWindow extends JFrame {
         gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         leftPanel.add(allBooks, gbc);
+
+        allBooks.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                AllBooksWindow allBooksWin = new AllBooksWindow(db);
+                allBooksWin.setVisible(true);
+            }
+        });
         
         JButton checkout = new JButton("Check Out");
         gbc.gridx = 1;
