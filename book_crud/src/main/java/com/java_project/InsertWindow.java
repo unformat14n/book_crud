@@ -26,8 +26,6 @@ public class InsertWindow extends JFrame {
     private GridBagConstraints gbc;
     private JTextField t1, t2, t3, t4, t6, t7, t8;
     private JComboBox<String> t5;
-    private InsertWindow auxWin;
-    private boolean auxWinOpen;
     private String bookRef;
     private BookInfo book;
 
@@ -121,6 +119,7 @@ public class InsertWindow extends JFrame {
         t5.addItem("ACTION ADVENTURE");
         t5.addItem("CHILDREN");
         t5.addItem("DYSTOPIAN");
+        t5.addItem("NOVEL");
         t5.addItem("FANTASY");
         t5.addItem("GRAPHIC_NOVEL");
         t5.addItem("HISTORICAL_FICTION");

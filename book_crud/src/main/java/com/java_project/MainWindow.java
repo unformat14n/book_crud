@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+import java.time.LocalDate;
 
 public class MainWindow extends JFrame {
 
@@ -25,6 +26,7 @@ public class MainWindow extends JFrame {
     public Database db;
     public JTextField option;
     public JPanel checksPanel;
+    public JPanel botLeftPanel;
 
     public MainWindow(Database db) {
 
@@ -49,7 +51,6 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(title, gbc);
 
-        
         // "Search by:" label
         JLabel searchByLabel = new JLabel("Search by:");
         gbc.gridx = 0;
@@ -57,7 +58,7 @@ public class MainWindow extends JFrame {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
         leftPanel.add(searchByLabel, gbc);
-        
+
         JComboBox<String> searchBy = new JComboBox<String>();
         searchBy.addItem("Title");
         searchBy.addItem("Author");
@@ -67,13 +68,13 @@ public class MainWindow extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 2;
         leftPanel.add(searchBy, gbc);
-        
+
         option = new JTextField(15);
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
         leftPanel.add(option, gbc);
-        
+
         // Insert button
         JButton find = new JButton("Find");
         gbc.gridx = 0;
@@ -94,21 +95,21 @@ public class MainWindow extends JFrame {
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
         leftPanel.add(insertType, gbc);
-        
+
         JButton insert = new JButton("Log Record");
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.EAST;
         leftPanel.add(insert, gbc);
-        
+
         insert.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 createInsertWin((String) insertType.getSelectedItem());
             }
         });
 
-        JPanel bottomLeftPanel = new JPanel();
-        bottomLeftPanel.setLayout(new BoxLayout(bottomLeftPanel, BoxLayout.Y_AXIS));
+        botLeftPanel = new JPanel();
+        botLeftPanel.setLayout(new BoxLayout(botLeftPanel, BoxLayout.Y_AXIS));
 
         JButton allBooks = new JButton("All books");
         gbc.gridx = 0;
@@ -118,12 +119,12 @@ public class MainWindow extends JFrame {
 
         allBooks.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 AllBooksWindow allBooksWin = new AllBooksWindow(db);
                 allBooksWin.setVisible(true);
             }
         });
-        
+
         JButton checkout = new JButton("Check Out");
         gbc.gridx = 1;
         gbc.gridy = 5;
@@ -134,10 +135,10 @@ public class MainWindow extends JFrame {
                 createCheckoutWin();
             }
         });
-        
-        allBooks(bottomLeftPanel);
 
-        JScrollPane bottomLeftScrollPane = new JScrollPane(bottomLeftPanel);
+        displayCheckouts();
+
+        JScrollPane bottomLeftScrollPane = new JScrollPane(botLeftPanel);
         bottomLeftScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         bottomLeftScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -151,7 +152,7 @@ public class MainWindow extends JFrame {
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS)); // Vertical stacking
         JScrollPane scrollPane = new JScrollPane(resultsPanel);
 
-        // Replace bottomLeftPanel in the leftSplitPane with the scrollable 
+        // Replace bottomLeftPanel in the leftSplitPane with the scrollable
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSplitPane, scrollPane);
         mainSplitPane.setDividerLocation(WIDTH / 2);
         mainSplitPane.setResizeWeight(0.3);
@@ -159,6 +160,7 @@ public class MainWindow extends JFrame {
         add(mainSplitPane);
 
         // Frame settings
+        findInDB("title");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the window
         setVisible(true);
@@ -176,7 +178,7 @@ public class MainWindow extends JFrame {
                         public void windowDeactivated(WindowEvent e) {
                             if (!inWin.isShowing()) {
                                 inWinOpened = false;
-                                findInDB("Title");
+                                findInDB("title");
                             }
                         }
                     });
@@ -184,6 +186,7 @@ public class MainWindow extends JFrame {
             inWin.toFront();
         }
     }
+
     public void createCheckoutWin() {
         if (!inWinOpened) {
             chWin = new CheckoutWindow(this.db);
@@ -196,7 +199,8 @@ public class MainWindow extends JFrame {
                         public void windowDeactivated(WindowEvent e) {
                             if (!chWin.isShowing()) {
                                 chWinOpened = false;
-                                findInDB("Title");
+                                displayCheckouts();
+                                findInDB("title");
                             }
                         }
                     });
@@ -211,7 +215,8 @@ public class MainWindow extends JFrame {
         resultsPanel.repaint();
 
         // Fetch BookInfo objects based on the search criteria
-        List<BookInfo> books = db.where("UPPER(" + type + ") LIKE ?", "%" + option.getText().toUpperCase() + "%").results(BookInfo.class);
+        List<BookInfo> books = db.where("UPPER(" + type + ") LIKE ?", "%" + option.getText().toUpperCase() + "%")
+                .results(BookInfo.class);
         System.out.println("Books found: " + books.size());
 
         if (books.isEmpty()) {
@@ -297,39 +302,64 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void allBooks(JPanel bottomLeftPanel){
-        bottomLeftPanel.removeAll();
+    private void displayCheckouts() {
+        botLeftPanel.removeAll();
+        botLeftPanel.revalidate();
+        botLeftPanel.repaint();
+        LocalDate today = LocalDate.now();
 
-        List<Checkout> checkouts = db.where("status = ?", "ACTIVE").results(Checkout.class);
+        List<Checkout> checkouts = db.where("status = ? OR status = ?", "ACTIVE", "EXPIRED").results(Checkout.class);
 
-        if (checkouts.isEmpty()){
-            JLabel noChecks = new JLabel("No books found.");
-            bottomLeftPanel.add(noChecks);
-        } else{
-            for (Checkout ch : checkouts){
+        if (checkouts.isEmpty()) {
+            JLabel noChecks = new JLabel("No Active Checkouts.");
+            botLeftPanel.add(noChecks);
+        } else {
+            for (Checkout ch : checkouts) {
                 JPanel chInfo = new JPanel();
                 chInfo.setLayout(new BoxLayout(chInfo, BoxLayout.Y_AXIS));
+                List<BookCopy> match = db.where("copyID LIKE ?", ch.copyID).results(BookCopy.class);
+                ch.copy = match.get(0);
+                List<BookInfo> bookMatch = db.where("isbn LIKE ?", ch.copy.bookISBN).results(BookInfo.class);
+                ch.copy.book = bookMatch.get(0);
+
+                LocalDate expCheckin = LocalDate.parse(ch.expCheckin);
+                if (today.isAfter(expCheckin)) {
+                    ch.status = "EXPIRED";
+                    db.update(ch);
+                }
 
                 JLabel id = new JLabel("ID: " + ch.checkId);
+                JLabel tl = new JLabel("Book Title: " + ch.copy.book.title);
                 JLabel date = new JLabel("Checkout Date: " + ch.checkoutDate);
                 JLabel stat = new JLabel("Status: " + ch.status);
                 JLabel exp = new JLabel("Expected Checkin: " + ch.expCheckin);
                 JLabel cli = new JLabel("Client ID: " + ch.clientID);
+                JLabel cp = new JLabel("Copy ID: " + ch.copyID);
 
                 chInfo.add(id);
+                chInfo.add(tl);
                 chInfo.add(date);
                 chInfo.add(stat);
                 chInfo.add(exp);
                 chInfo.add(cli);
+                chInfo.add(cp);
 
-                bottomLeftPanel.add(chInfo);
+                botLeftPanel.add(chInfo);
 
                 JButton checkIn = new JButton("Check In");
-                bottomLeftPanel.add(checkIn);
+                checkIn.addActionListener(e -> {
+                    ch.status = "CLOSED";
+                    db.update(ch);
+                    ch.copy.status = "AVAILABLE";
+                    db.update(ch.copy);
+                    findInDB("title");
+                    displayCheckouts();
+                });
+                botLeftPanel.add(checkIn);
             }
         }
-        bottomLeftPanel.revalidate();
-        bottomLeftPanel.repaint();
+        botLeftPanel.revalidate();
+        botLeftPanel.repaint();
     }
 
 }

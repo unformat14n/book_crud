@@ -91,6 +91,6 @@ public class BookInfo {
                 return false;
             }
         }
-        return isbn.length() == 13 ? sum % 10 == 0 : sum % 11 == 0;
+        return sum % 11 == 0;
     }
 }

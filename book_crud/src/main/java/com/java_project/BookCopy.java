@@ -55,7 +55,7 @@ public class BookCopy {
             ByteBuffer.wrap(
                 UUID.randomUUID().toString().getBytes()
                 ).getLong(), Character.MAX_RADIX
-            );
+            ).toUpperCase();
         return shortUUID;
     }
 }

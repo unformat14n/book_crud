@@ -113,6 +113,9 @@ public class CheckoutWindow extends JFrame {
                     throw new Exception("Match not found");
                 } else {
                     copyB = matches.get(0);
+                    if (copyB.status.equals("UNAVAILABLE")) {
+                        throw new Exception("Unavailable book");
+                    }
                 }
 
                 insertToDB();
@@ -132,12 +135,19 @@ public class CheckoutWindow extends JFrame {
                             "Please fill in all mandatory fields.",
                             "Missing Fields",
                             JOptionPane.ERROR_MESSAGE);
+                } else if(ex.getMessage().contains("not found")) {
+                    System.out.println(ex);
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "The copy ID does not match any book copy. \nPlease make sure everything is correct.",
+                            "ID Not Matching",
+                            JOptionPane.ERROR_MESSAGE);
                 } else {
                     System.out.println(ex);
                     JOptionPane.showMessageDialog(
                             this,
-                            "The copy ID does not match any book copy. Please make sure everything is correct.",
-                            "Missing Fields",
+                            "The copy ID reference takes to a copy that is already checked out or unavailable. \nPlease try again with another ID.",
+                            "Checked Out Book",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -152,8 +162,11 @@ public class CheckoutWindow extends JFrame {
                 t2.getText().toUpperCase(),
                 t3.getText());
         ch.copy = copyB;
-        System.out.println(copyB);
         db.insert(ch);
+        List<BookCopy> copies = db.where("copyID LIKE ?", t3.getText()).results(BookCopy.class);
+        BookCopy ref = copies.get(0);
+        ref.status = "UNAVAILABLE";
+        db.update(ref);
         dispose();
     }
 
