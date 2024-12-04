@@ -200,6 +200,10 @@ public class InsertWindow extends JFrame {
                     System.out.println("Parsed date: " + date);
                 }
 
+                if (BookInfo.validISBN(t2.getText())) {
+                    throw new Exception("Invalid ISBN");
+                }
+
                 JTextField[] fields = { t1, t2, t3, t4 };
                 for (JTextField field : fields) {
                     System.out.println(
@@ -217,12 +221,21 @@ public class InsertWindow extends JFrame {
                         "Invalid Date Format",
                         JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
-                System.out.println(ex);
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Please fill in all mandatory fields.",
-                        "Missing Fields",
-                        JOptionPane.ERROR_MESSAGE);
+                if (ex.getMessage().contains("Empty")) {
+                    System.out.println(ex);
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Please fill in all mandatory fields.",
+                            "Missing Fields",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    System.out.println(ex);
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Book ISBN is not valid. Please enter an ISBN of 10 or 13 digits. No ending numbers.",
+                            "Book ISBN not valid",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 

@@ -55,7 +55,7 @@ public class Main {
             Database db = new Database();
             db.setJdbcUrl("jdbc:sqlite:" + dbFilePath.toString());
             System.out.println(" >>> Database set up correctly!");
-            Class<?>[] tables = { BookInfo.class, BookCopy.class };
+            Class<?>[] tables = { BookInfo.class, BookCopy.class, Checkout.class };
             for (int i = 0; i < tables.length; i++) {
                 createTable(db, tables[i].getSimpleName(), tables[i]);
             }

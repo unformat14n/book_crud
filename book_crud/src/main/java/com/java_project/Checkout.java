@@ -1,29 +1,38 @@
 package com.java_project;
 
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.time.*;
+import javax.persistence.Transient;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Table (name = "Checkout")
 
 public class Checkout {
-    @Id @GeneratedValue
-    public long checkId;
-    // int copyId;
-    public LocalDate checkoutDate;
-    public LocalDate expCheckin;
-    public LocalDate checkinDate;
-    // public int userId;
-    public String status; 
+    @Id
+    public String checkId;
+    public String checkoutDate;
+    public String expCheckin;
+    public String checkinDate;
+    public String status;
+    public String copyID;
+    public String clientID;
 
-    Checkout () {}
+    @Transient
+    public BookCopy copy;
 
-    public Checkout(LocalDate checkouDate, LocalDate expCheckin, LocalDate checkinDate, String status) {
-        this.checkoutDate = checkouDate;
-        this.expCheckin = expCheckin;
-        this.checkinDate = checkinDate;
-        this.status = status;
+    public Checkout () {}
+
+    public Checkout(String checkoutDate, String clientID, String copyID) {
+        this.copyID = copyID;
+        this.checkId = generateUUID();
+        this.checkoutDate = checkoutDate;
+        this.checkinDate = "";
+        this.expCheckin = generateExpireDate(this.checkoutDate);
+        this.status = "ACTIVE";
+        this.clientID = clientID;
     } 
 
     public String toString() {
@@ -31,5 +40,21 @@ public class Checkout {
                 this.expCheckin + ", " +
                 this.checkinDate + ", " +
                 this.status;
-    } 
+    }
+
+    public String generateExpireDate(String d) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        String result = "";
+
+        LocalDate date = LocalDate.parse(d, formatter);
+        date.plusDays(60);
+        System.out.println("Parsed date: " + date.toString());
+        result = date.plusDays(60).toString();
+
+        return result;
+    }
+
+    public String generateUUID() {
+        return UUID.randomUUID().toString();
+    }
 }

@@ -1,10 +1,10 @@
 package com.java_project;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
 // Norm-based entity class
@@ -51,6 +51,11 @@ public class BookCopy {
     }
 
     public String generateUUID() {
-        return UUID.randomUUID().toString();
+        String shortUUID = Long.toString(
+            ByteBuffer.wrap(
+                UUID.randomUUID().toString().getBytes()
+                ).getLong(), Character.MAX_RADIX
+            );
+        return shortUUID;
     }
 }

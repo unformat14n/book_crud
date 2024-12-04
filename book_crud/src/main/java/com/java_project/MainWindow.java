@@ -20,6 +20,8 @@ public class MainWindow extends JFrame {
     private JPanel resultsPanel;
     private InsertWindow inWin;
     private boolean inWinOpened = false;
+    private CheckoutWindow chWin;
+    private boolean chWinOpened = false;
     public Database db;
     public JTextField option;
     public JPanel checksPanel;
@@ -47,17 +49,7 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(title, gbc);
 
-        JPanel bottomLeftPanel = new JPanel();
-        bottomLeftPanel.setLayout(new BoxLayout(bottomLeftPanel, BoxLayout.Y_AXIS));
-
-        JButton checkout = new JButton("Check Out");
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.anchor = GridBagConstraints.WEST;
-        leftPanel.add(checkout, gbc);
         
-        allBooks(bottomLeftPanel);
-
         // "Search by:" label
         JLabel searchByLabel = new JLabel("Search by:");
         gbc.gridx = 0;
@@ -65,7 +57,7 @@ public class MainWindow extends JFrame {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
         leftPanel.add(searchByLabel, gbc);
-
+        
         JComboBox<String> searchBy = new JComboBox<String>();
         searchBy.addItem("Title");
         searchBy.addItem("Author");
@@ -75,12 +67,13 @@ public class MainWindow extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 2;
         leftPanel.add(searchBy, gbc);
-
+        
         option = new JTextField(15);
         gbc.gridx = 1;
         gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.EAST;
         leftPanel.add(option, gbc);
-
+        
         // Insert button
         JButton find = new JButton("Find");
         gbc.gridx = 0;
@@ -88,12 +81,11 @@ public class MainWindow extends JFrame {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(find, gbc);
-        find.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        findInDB((String) searchBy.getSelectedItem());
-                    }
-                });
+        find.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                findInDB((String) searchBy.getSelectedItem());
+            }
+        });
 
         JComboBox<String> insertType = new JComboBox<String>();
         insertType.addItem("Book");
@@ -102,19 +94,40 @@ public class MainWindow extends JFrame {
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
         leftPanel.add(insertType, gbc);
-
+        
         JButton insert = new JButton("Log Record");
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.EAST;
         leftPanel.add(insert, gbc);
+        
+        insert.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createInsertWin((String) insertType.getSelectedItem());
+            }
+        });
 
-        insert.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        createInsertWin((String) insertType.getSelectedItem());
-                    }
-                });
+        JPanel bottomLeftPanel = new JPanel();
+        bottomLeftPanel.setLayout(new BoxLayout(bottomLeftPanel, BoxLayout.Y_AXIS));
+
+        JButton allBooks = new JButton("All books");
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        leftPanel.add(allBooks, gbc);
+        
+        JButton checkout = new JButton("Check Out");
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.EAST;
+        leftPanel.add(checkout, gbc);
+        checkout.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createCheckoutWin();
+            }
+        });
+        
+        allBooks(bottomLeftPanel);
 
         JScrollPane bottomLeftScrollPane = new JScrollPane(bottomLeftPanel);
         bottomLeftScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -125,31 +138,12 @@ public class MainWindow extends JFrame {
         leftSplitPane.setResizeWeight(0.5);
         leftSplitPane.setEnabled(false);
 
-        // JLabel checks = new JLabel("Active Check Outs:");
-        // checks.setFont(new Font("Arial", Font.BOLD, 18));
-        // gbc.gridx = 0;
-        // gbc.gridy = 5;
-        // gbc.anchor = GridBagConstraints.WEST;
-        // leftPanel.add(checks, gbc);
-
-        // checksPanel = new JPanel();
-        // checksPanel.setPreferredSize(new Dimension());
-        // checksPanel.setLayout(new BoxLayout(checksPanel, BoxLayout.Y_AXIS));
-        // JScrollPane checksScroll = new JScrollPane(checksPanel);
-        // gbc.gridx = 0;
-        // gbc.gridy = 6;
-        // leftPanel.add(checksScroll, gbc);
-
         // Right Panel for query results
         resultsPanel = new JPanel();
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS)); // Vertical stacking
         JScrollPane scrollPane = new JScrollPane(resultsPanel);
 
-        // Replace bottomLeftPanel in the leftSplitPane with the scrollable version
-
-
-
-
+        // Replace bottomLeftPanel in the leftSplitPane with the scrollable 
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSplitPane, scrollPane);
         mainSplitPane.setDividerLocation(WIDTH / 2);
         mainSplitPane.setResizeWeight(0.3);
@@ -180,6 +174,26 @@ public class MainWindow extends JFrame {
                     });
         } else {
             inWin.toFront();
+        }
+    }
+    public void createCheckoutWin() {
+        if (!inWinOpened) {
+            chWin = new CheckoutWindow(this.db);
+            chWin.setVisible(true);
+            chWin.setOpen(true);
+            chWinOpened = true;
+            chWin.addWindowListener(
+                    new WindowAdapter() {
+                        @Override
+                        public void windowDeactivated(WindowEvent e) {
+                            if (!chWin.isShowing()) {
+                                chWinOpened = false;
+                                findInDB("Title");
+                            }
+                        }
+                    });
+        } else {
+            chWin.toFront();
         }
     }
 
@@ -278,30 +292,32 @@ public class MainWindow extends JFrame {
     private void allBooks(JPanel bottomLeftPanel){
         bottomLeftPanel.removeAll();
 
-        List<BookInfo> books = db.results(BookInfo.class);
+        List<Checkout> checkouts = db.where("status = ?", "ACTIVE").results(Checkout.class);
 
-        if (books.isEmpty()){
-            JLabel noBooks = new JLabel("No books found.");
-            bottomLeftPanel.add(noBooks);
+        if (checkouts.isEmpty()){
+            JLabel noChecks = new JLabel("No books found.");
+            bottomLeftPanel.add(noChecks);
         } else{
-            for (BookInfo book : books){
-                JPanel bookInfo = new JPanel();
-                bookInfo.setLayout(new BoxLayout(bookInfo, BoxLayout.Y_AXIS));
+            for (Checkout ch : checkouts){
+                JPanel chInfo = new JPanel();
+                chInfo.setLayout(new BoxLayout(chInfo, BoxLayout.Y_AXIS));
 
-                JLabel title = new JLabel("Title: " + book.title);
-                JLabel isbn = new JLabel("ISBN: " + book.isbn);
-                JLabel date = new JLabel("Date: " + book.publishDate);
+                JLabel id = new JLabel("ID: " + ch.checkId);
+                JLabel date = new JLabel("Checkout Date: " + ch.checkoutDate);
+                JLabel stat = new JLabel("Status: " + ch.status);
+                JLabel exp = new JLabel("Expected Checkin: " + ch.expCheckin);
+                JLabel cli = new JLabel("Client ID: " + ch.clientID);
 
-                bookInfo.add(title);
-                bookInfo.add(isbn);
-                bookInfo.add(date);
-                
-                bottomLeftPanel.add(bookInfo);
+                chInfo.add(id);
+                chInfo.add(date);
+                chInfo.add(stat);
+                chInfo.add(exp);
+                chInfo.add(cli);
+
+                bottomLeftPanel.add(chInfo);
 
                 JButton checkIn = new JButton("Check In");
                 bottomLeftPanel.add(checkIn);
-
-                
             }
         }
         bottomLeftPanel.revalidate();
