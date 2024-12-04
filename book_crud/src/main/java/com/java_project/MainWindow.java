@@ -47,6 +47,17 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         leftPanel.add(title, gbc);
 
+        JPanel bottomLeftPanel = new JPanel();
+        bottomLeftPanel.setLayout(new BoxLayout(bottomLeftPanel, BoxLayout.Y_AXIS));
+
+        JButton checkout = new JButton("Check Out");
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        leftPanel.add(checkout, gbc);
+        
+        allBooks(bottomLeftPanel);
+
         // "Search by:" label
         JLabel searchByLabel = new JLabel("Search by:");
         gbc.gridx = 0;
@@ -105,19 +116,14 @@ public class MainWindow extends JFrame {
                     }
                 });
 
-        JButton check_In = new JButton("Check In");
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        leftPanel.add(check_In, gbc);
+        JScrollPane bottomLeftScrollPane = new JScrollPane(bottomLeftPanel);
+        bottomLeftScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        bottomLeftScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        JButton check_Out = new JButton("Check Out");
-        gbc.gridx = 1;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.EAST;
-        leftPanel.add(check_Out, gbc);
+        JSplitPane leftSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, leftPanel, bottomLeftScrollPane);
+        leftSplitPane.setDividerLocation(HEIGHT / 2);
+        leftSplitPane.setResizeWeight(0.5);
+        leftSplitPane.setEnabled(false);
 
         // JLabel checks = new JLabel("Active Check Outs:");
         // checks.setFont(new Font("Arial", Font.BOLD, 18));
@@ -137,21 +143,18 @@ public class MainWindow extends JFrame {
         // Right Panel for query results
         resultsPanel = new JPanel();
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS)); // Vertical stacking
-
-        // Making resultsPanel scrollable
         JScrollPane scrollPane = new JScrollPane(resultsPanel);
 
-        JSplitPane splitPane = new JSplitPane(
-                JSplitPane.HORIZONTAL_SPLIT,
-                leftPanel,
-                scrollPane);
+        // Replace bottomLeftPanel in the leftSplitPane with the scrollable version
 
-        splitPane.setDividerLocation(WIDTH / 2);
-        splitPane.setResizeWeight(0.7);
-        splitPane.setEnabled(false);
 
-        // Add the split pane to the main frame
-        add(splitPane);
+
+
+        JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSplitPane, scrollPane);
+        mainSplitPane.setDividerLocation(WIDTH / 2);
+        mainSplitPane.setResizeWeight(0.3);
+        mainSplitPane.setEnabled(false);
+        add(mainSplitPane);
 
         // Frame settings
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -186,8 +189,8 @@ public class MainWindow extends JFrame {
         resultsPanel.repaint();
 
         // Fetch BookInfo objects based on the search criteria
-        List<BookInfo> books = db.where(type + " LIKE ?", "%" + option.getText().toUpperCase() + "%")
-                .results(BookInfo.class);
+        List<BookInfo> books = db.where("UPPER(" + type + ") LIKE ?", "%" + option.getText().toUpperCase() + "%").results(BookInfo.class);
+        System.out.println("Books found: " + books.size());
 
         if (books.isEmpty()) {
             JLabel noResults = new JLabel(
@@ -271,4 +274,38 @@ public class MainWindow extends JFrame {
             resultsPanel.repaint();
         }
     }
+
+    private void allBooks(JPanel bottomLeftPanel){
+        bottomLeftPanel.removeAll();
+
+        List<BookInfo> books = db.results(BookInfo.class);
+
+        if (books.isEmpty()){
+            JLabel noBooks = new JLabel("No books found.");
+            bottomLeftPanel.add(noBooks);
+        } else{
+            for (BookInfo book : books){
+                JPanel bookInfo = new JPanel();
+                bookInfo.setLayout(new BoxLayout(bookInfo, BoxLayout.Y_AXIS));
+
+                JLabel title = new JLabel("Title: " + book.title);
+                JLabel isbn = new JLabel("ISBN: " + book.isbn);
+                JLabel date = new JLabel("Date: " + book.publishDate);
+
+                bookInfo.add(title);
+                bookInfo.add(isbn);
+                bookInfo.add(date);
+                
+                bottomLeftPanel.add(bookInfo);
+
+                JButton checkIn = new JButton("Check In");
+                bottomLeftPanel.add(checkIn);
+
+                
+            }
+        }
+        bottomLeftPanel.revalidate();
+        bottomLeftPanel.repaint();
+    }
+
 }
