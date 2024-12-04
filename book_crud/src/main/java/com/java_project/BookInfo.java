@@ -65,4 +65,31 @@ public class BookInfo {
                 ", " +
                 this.publishDate;
     }
+    
+    public boolean validISBN (String isbn) {
+        if (isbn.length() != 13 && isbn.length() != 10) { 
+            return false; };
+
+        int sum = 0;
+
+        for (int i = 0 ; i < isbn.length(); i++) {
+            try {
+                int num = isbn.charAt(i) - '0';
+
+                if (isbn.length() == 13) {
+                    if (i % 2 == 0) {
+                        sum += num;
+                    } else {
+                        sum += num * 3;
+                    }
+                } else {
+                    sum += num * (10 - i);
+                }
+            }   
+            catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return isbn.length() == 13 ? sum % 10 == 0 : sum % 11 == 0;
+    }
 }
